@@ -74,17 +74,28 @@ The project follows a **Layered Architecture** to ensure maintainability and tes
 
 ### 🏃 Running the Application
 
-**Install dependencies:**
+**Run with Docker (Recommended):**
+This will start the Go app, PostgreSQL, Redis, and automatically run database migrations.
+
 ```bash
-go mod tidy
+docker compose up -d
 ```
 
-**Run the application:**
-```bash
-go run main.go
-```
+**Run locally (Manual):**
+
+1. Install dependencies:
+   ```bash
+   go mod tidy
+   ```
+
+2. Run the application:
+   ```bash
+   go run main.go
+   ```
 
 The server will start on the port specified in your `.env` file (default: `8080`).
+
+> You might need to run the seeder after run the app. [See at the `🌱 Database Seeder` section](###-🌱-database-seeder)
 
 ### 🗄️ Database Migrations
 
