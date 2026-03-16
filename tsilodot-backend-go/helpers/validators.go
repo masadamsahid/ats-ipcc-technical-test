@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"log"
 	"regexp"
 	"strings"
 
@@ -20,6 +21,7 @@ func toSnakeCase(str string) string {
 
 func HandleValidationErrors(validationErrors validator.ValidationErrors) map[string]string {
 	errs := make(map[string]string)
+	log.Println(errs)
 	for _, fieldErr := range validationErrors {
 		jsonKey := toSnakeCase(fieldErr.Field())
 
@@ -42,8 +44,12 @@ func HandleValidationErrors(validationErrors validator.ValidationErrors) map[str
 			errs[jsonKey] = fieldErr.Field() + " should be greater than " + fieldErr.Param()
 		case "url":
 			errs[jsonKey] = fieldErr.Field() + " must be a valid URL"
+		case "datetime":
+			errs[jsonKey] = fieldErr.Field() + " must be in " + fieldErr.Param() + " format"
+		case "oneof":
+			errs[jsonKey] = fieldErr.Field() + " must be one of [" + strings.Join(strings.Split(fieldErr.Param(), " "), ", ") + "]"
 		default:
-			errs[jsonKey] = "Validation failed for " + fieldErr.Field()
+			errs[jsonKey] = "Validation failed for '" + fieldErr.Field() + "'"
 		}
 	}
 

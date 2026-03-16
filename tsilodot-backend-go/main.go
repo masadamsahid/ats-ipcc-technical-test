@@ -101,6 +101,12 @@ func main() {
 	authController := controller.NewAuthController(authService)
 	routes.SetupAuthRoutes(api, authController)
 
+	// /api/tasks
+	taskRepo := repository.NewTaskRepository(db.DB)
+	taskService := service.NewTaskService(taskRepo)
+	taskController := controller.NewTaskController(taskService)
+	routes.SetupTaskRoutes(api, taskController)
+
 	fmt.Println("Available Routes:")
 	for _, route := range app.GetRoutes() {
 		fmt.Printf("%s\t%s\n", route.Method, route.Path)
