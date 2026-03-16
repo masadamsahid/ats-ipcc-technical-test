@@ -33,6 +33,7 @@ func (t *TaskController) CreateTask(c fiber.Ctx) error {
 			})
 		}
 
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Failed",
 			Errors:  helpers.HandleValidationErrors(validationErrors),
@@ -145,6 +146,7 @@ func (t *TaskController) UpdateTask(c fiber.Ctx) error {
 			})
 		}
 
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Failed",
 			Errors:  helpers.HandleValidationErrors(validationErrors),

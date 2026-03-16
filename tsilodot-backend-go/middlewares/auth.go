@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"errors"
 	"log"
 	"strings"
 	"tsilodot/helpers"
@@ -14,20 +13,26 @@ func IsAuthenticated(c fiber.Ctx) error {
 
 	if authHeader == "" {
 		c.Status(fiber.StatusUnauthorized)
-		return errors.New("Auth header must be provided")
+		return c.JSON(&fiber.Map{
+			"message": "Auth header must be provided",
+		})
 	}
 
 	// split Bearer and AuthToken
 	tokenParts := strings.Split(authHeader, " ")
 	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 		c.Status(fiber.StatusUnauthorized)
-		return errors.New("invalid authorization header format")
+		return c.JSON(&fiber.Map{
+			"message": "invalid authorization header format",
+		})
 	}
 
 	token, err := helpers.VerifyAuthToken(tokenParts[1])
 	if err != nil || !token.Valid {
 		c.Status(fiber.StatusUnauthorized)
-		return errors.New("invalid or expired token")
+		return c.JSON(&fiber.Map{
+			"message": "invalid or expired token",
+		})
 	}
 
 	// log.Printf("%v", token.Claims)
@@ -36,7 +41,9 @@ func IsAuthenticated(c fiber.Ctx) error {
 	if !ok {
 		log.Println("Error claim:", claims)
 		c.Status(fiber.StatusUnauthorized)
-		return errors.New("invalid token claims")
+		return c.JSON(&fiber.Map{
+			"message": "invalid token claims",
+		})
 	}
 
 	// log.Println("Claims", claims)

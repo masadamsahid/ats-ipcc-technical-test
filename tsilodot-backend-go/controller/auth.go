@@ -32,6 +32,7 @@ func (a *AuthController) Register(c fiber.Ctx) error {
 			})
 		}
 
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Failed",
 			Errors:  helpers.HandleValidationErrors(validationErrors),
@@ -70,6 +71,7 @@ func (a *AuthController) Login(c fiber.Ctx) error {
 			})
 		}
 
+		c.Status(fiber.StatusBadRequest)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Failed",
 			Errors:  helpers.HandleValidationErrors(validationErrors),
