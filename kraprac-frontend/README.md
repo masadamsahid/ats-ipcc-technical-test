@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KrapRac - Smart Parking Management System
 
-## Getting Started
+A modern, interactive parking slot booking and management application built with **Next.js**, featuring a visual interactive map powered by **React Konva**.
 
-First, run the development server:
+![Illustration](image.png)
+
+## 🚀 Overview
+
+KrapRac is designed to simplify parking management with a visual-first approach. It provides a real-time view of parking availability across multiple floors, allowing users to book slots, track parking duration, and manage active sessions with ease.
+
+## ✨ Key Features
+
+- **Interactive 2D Map**: A canvas-based visual layout of parking slots and rows.
+- **Real-time Status Tracking**: 
+  - 🟢 **Available**: Ready for booking.
+  - 🔴 **Occupied**: Currently in use.
+  - 🟠 **Overtime**: Booking duration exceeded (calculated live).
+- **Booking Management**: Streamlined flow to reserve slots with vehicle and user details.
+- **Live Countdowns**: Real-time remaining time and overtime tracking for all active bookings.
+- **Search & Filters**: Quickly find slots by name or row across different floors.
+- **Multi-floor Support**: Seamlessly switch between parking levels.
+- **Persistence**: Data is persisted locally using Browser Local Storage.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Visuals**: [React Konva](https://konvajs.org/docs/react/index.html) for interactive canvas rendering.
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/).
+- **Icons**: [Hugeicons](https://hugeicons.com/).
+- **State & Storage**: React Hooks & Local Storage.
+
+## 🏃 Getting Started
+
+### Prerequisites
+
+Ensure you have [Node.js](https://nodejs.org/) and a package manager ([Bun](https://bun.sh/), [NPM](https://www.npmjs.com/), or [Yarn](https://yarnpkg.com/)) installed.
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone <repository-url>
+cd kraprac-frontend
+
+# Install dependencies
+bun install # or npm install
+```
+
+### Development
+
+Run the development server:
+
+```bash
+bun dev # or npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build & Lint
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Production build
+bun run build
 
-## Learn More
+# Linting
+bun run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 📂 Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/app/`: Next.js App Router pages and global styles.
+- `src/components/`: Core UI components.
+  - `ParkingMap.tsx`: Canvas rendering logic.
+  - `ParkingDashboard.tsx`: Main dashboard and stats.
+  - `BookingFlow.tsx`: Modals for booking and session details.
+  - `ui/`: Reusable primitive components (Shadcn UI).
+- `src/dummy-data/`: Initial data structures, types, and constants (`slots.ts`).
+- `src/lib/`: Utility functions and Local Storage logic (`storage.ts`).
+- `src/hooks/`: Custom React hooks for business logic.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📋 Development Conventions
 
-## Deploy on Vercel
+### Visual Parking Map
+The parking layout is managed in `src/dummy-data/slots.ts`. Constants like `SLOT_WIDTH`, `SLOT_HEIGHT`, and `SLOT_GAP` define the grid system. When adding new visual elements, ensure they align with the Konva coordinate system.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Status Logic
+Slots are maintained as `available` or `booked`. The "Overtime" status is derived dynamically by comparing the current timestamp against the `startTime` and `duration` stored in the booking record.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Styling
+Prefer **Vanilla CSS** or **Tailwind CSS** classes. Follow the established Shadcn UI patterns for consistency in spacing, typography, and interactive feedback.
