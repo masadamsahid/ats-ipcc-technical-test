@@ -4,13 +4,13 @@ This repository contains two unrelated projects developed as part of an assignme
 
 ## Projects
 
-### 1. [Tsilodot Backend (Go)](./tsilodot-backend-go)
+### 1. [Tsilodot Backend (Go)](./tsilodot-backend-go) (https://tsilodot-backend-go.apn.leapcell.app/scalar)
 A high-performance task management (todo list) backend API.
 - **Tech Stack:** Go (Fiber v3), GORM, PostgreSQL, Redis, JWT.
 - **Key Features:** RESTful API, Layered Architecture, JWT Authentication, Redis Caching, and Interactive API Documentation (Swagger/Scalar).
 - **Instructions:** Refer to [tsilodot-backend-go/README.md](./tsilodot-backend-go/README.md) for environment setup, migrations, and execution steps.
 
-### 2. [KrapRac - Smart Parking Management System](./kraprac-frontend)
+### 2. [KrapRac - Smart Parking Management System](./kraprac-frontend) (https://krap-rac.vercel.app/)
 A modern, interactive parking slot booking and management frontend application.
 - **Tech Stack:** Next.js (App Router), TypeScript, React Konva, Tailwind CSS v4, Shadcn UI.
 - **Key Features:** Interactive 2D Map, Real-time Status Tracking (Available, Occupied, Overtime), Booking Management, and Live Countdowns.

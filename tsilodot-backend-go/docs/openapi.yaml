@@ -4,6 +4,8 @@ info:
   description: API documentation for the Tsilodot App
   version: 1.0.0
 servers:
+  - url: https://tsilodot-backend-go.apn.leapcell.app/api
+    description: Leapcell Prod Server
   - url: http://localhost:8080/api
     description: Local Development Server
 

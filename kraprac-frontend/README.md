@@ -4,6 +4,8 @@ A modern, interactive parking slot booking and management application built with
 
 ![Illustration](image.png)
 
+Online demo: https://krap-rac.vercel.app
+
 ## 🚀 Overview
 
 KrapRac is designed to simplify parking management with a visual-first approach. It provides a real-time view of parking availability across multiple floors, allowing users to book slots, track parking duration, and manage active sessions with ease.

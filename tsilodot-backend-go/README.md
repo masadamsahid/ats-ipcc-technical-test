@@ -5,6 +5,12 @@ A high-performance task management (todo list) backend API built with Go, featur
 ![Scalar Preview](image.png)
 ![Swagger Preview](image-1.png)
 
+Online demo: 
+- [https://tsilodot-backend-go.apn.leapcell.app/scalar](https://tsilodot-backend-go.apn.leapcell.app/scalar)
+- [https://tsilodot-backend-go.apn.leapcell.app/swagger](https://tsilodot-backend-go.apn.leapcell.app/swagger)
+
+_*If it doesn't work, you can run it locally (read the instructions in Getting Started section below)_
+
 ## 🚀 Features
 
 - **RESTful API:** Clean and predictable API for task management.
