@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Stage, Layer, Rect, Text, Group } from 'react-konva';
 import { 
   Floor, 
   Slot, 
+  Booking,
   SLOT_COLOR_AVAILABLE, 
   SLOT_COLOR_BOOKED, 
+  SLOT_COLOR_OVERTIME,
   SLOT_WIDTH, 
   SLOT_HEIGHT,
   BLOCK_PADDING
@@ -14,10 +16,30 @@ import {
 
 interface ParkingMapProps {
   floor: Floor;
+  bookings: Booking[];
   onSlotClick: (slot: Slot) => void;
 }
 
-const ParkingMap: React.FC<ParkingMapProps> = ({ floor, onSlotClick }) => {
+const ParkingMap: React.FC<ParkingMapProps> = ({ floor, bookings, onSlotClick }) => {
+  const [now, setNow] = useState<number>(0);
+
+  // Update "now" every minute to refresh overtime status
+  useEffect(() => {
+    // Set initial value after mount to avoid synchronous state update in effect
+    const timeout = setTimeout(() => {
+      setNow(Date.now());
+    }, 0);
+
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 60000);
+
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
+  }, []);
+
   // Calculate stage dimensions based on blocks and slots
   const stageSize = useMemo(() => {
     let maxWidth = 800;
@@ -34,6 +56,20 @@ const ParkingMap: React.FC<ParkingMapProps> = ({ floor, onSlotClick }) => {
 
     return { width: maxWidth, height: maxHeight };
   }, [floor]);
+
+  const getSlotColor = (slot: Slot) => {
+    if (slot.status === 'available') return SLOT_COLOR_AVAILABLE;
+    
+    const booking = bookings.find(b => b.slotId === slot.id);
+    if (booking) {
+      const endTime = booking.startTime + (booking.duration * 60 * 1000);
+      if (now > endTime) {
+        return SLOT_COLOR_OVERTIME;
+      }
+    }
+    
+    return SLOT_COLOR_BOOKED;
+  };
 
   return (
     <div className="overflow-auto border rounded-lg bg-zinc-50 dark:bg-zinc-900/50 p-4">
@@ -60,7 +96,7 @@ const ParkingMap: React.FC<ParkingMapProps> = ({ floor, onSlotClick }) => {
                   <Rect
                     width={SLOT_WIDTH}
                     height={SLOT_HEIGHT}
-                    fill={slot.status === 'available' ? SLOT_COLOR_AVAILABLE : SLOT_COLOR_BOOKED}
+                    fill={getSlotColor(slot)}
                     cornerRadius={4}
                     stroke="#00000010"
                     strokeWidth={1}

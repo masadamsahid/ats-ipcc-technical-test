@@ -34,6 +34,7 @@ export interface Floor {
 export const STORAGE_KEY = 'kraprac_bookings';
 export const SLOT_COLOR_AVAILABLE = '#10b981';
 export const SLOT_COLOR_BOOKED = '#ef4444';
+export const SLOT_COLOR_OVERTIME = '#f97316';
 export const SLOT_WIDTH = 40;
 export const SLOT_HEIGHT = 60;
 export const SLOT_GAP = 10;

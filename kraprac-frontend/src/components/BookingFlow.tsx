@@ -172,7 +172,7 @@ export const ActiveBookingDetails: React.FC<ActiveBookingDetailsProps> = ({
           </div>
           
           <div className={`p-4 rounded-lg flex flex-col items-center justify-center gap-1 ${
-            timeLeft.isOvertime ? "bg-red-50 text-red-600 dark:bg-red-900/20" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20"
+            timeLeft.isOvertime ? "bg-orange-50 text-orange-600 dark:bg-orange-900/20" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20"
           }`}>
             <span className="text-xs font-semibold uppercase tracking-wider">
               {timeLeft.isOvertime ? "Overtime" : "Time Remaining"}
