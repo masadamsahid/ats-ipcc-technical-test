@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
-  title: 💵 Wallet App API
-  description: API documentation for the Wallet App
+  title: 📝 Tsilodot App API
+  description: API documentation for the Tsilodot App
   version: 1.0.0
 servers:
   - url: http://localhost:8080/api
@@ -102,6 +102,77 @@ components:
               type: string
               example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
+    # Pagination Schema
+    Pagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        total_pages:
+          type: integer
+          example: 1
+        total_items:
+          type: integer
+          example: 1
+
+    # Task Model
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint
+          example: 1
+        user_id:
+          type: integer
+          format: uint
+          example: 1
+        title:
+          type: string
+          example: "Complete project documentation"
+        description:
+          type: string
+          example: "Finish the README file for the backend API"
+        status:
+          type: string
+          enum: [pending, completed]
+          example: "pending"
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-03-25T00:00:00Z"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # Task Requests
+    TaskRequest:
+      type: object
+      required:
+        - title
+        - status
+        - due_date
+      properties:
+        title:
+          type: string
+          example: "Complete project documentation"
+        description:
+          type: string
+          example: "Finish the README file for the backend API"
+        status:
+          type: string
+          enum: [pending, completed]
+          example: "pending"
+        due_date:
+          type: string
+          format: date
+          example: "2024-03-25"
+
 paths:
   /auth/register:
     post:
@@ -170,6 +241,208 @@ paths:
                 $ref: '#/components/schemas/GenericResponse'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+
+  /tasks:
+    get:
+      summary: List all tasks for the authenticated user
+      tags:
+        - Tasks
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 5
+          description: Number of items per page
+      responses:
+        '200':
+          description: Tasks fetched successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GenericResponse'
+                  - type: object
+                    properties:
+                      pagination:
+                        $ref: '#/components/schemas/Pagination'
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+
+    post:
+      summary: Create a new task
+      tags:
+        - Tasks
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+      responses:
+        '200':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GenericResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '400':
+          description: Bad Request (Validation Error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+
+  /tasks/{id}:
+    get:
+      summary: Get details of a specific task
+      tags:
+        - Tasks
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Task ID
+      responses:
+        '200':
+          description: Task fetched successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GenericResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+
+    put:
+      summary: Update an existing task
+      tags:
+        - Tasks
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+      responses:
+        '200':
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/GenericResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '400':
+          description: Bad Request (Validation Error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '404':
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+
+    delete:
+      summary: Delete a task
+      tags:
+        - Tasks
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Task ID
+      responses:
+        '200':
+          description: Task deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+        '404':
+          description: Task not found
           content:
             application/json:
               schema:
