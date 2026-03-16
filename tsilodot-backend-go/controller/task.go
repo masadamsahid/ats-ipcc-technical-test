@@ -97,6 +97,8 @@ func (t *TaskController) GetTasks(c fiber.Ctx) error {
 }
 
 func (t *TaskController) GetTaskByID(c fiber.Ctx) error {
+	userClaims := c.Locals("user").(*helpers.AuthTokenClaims)
+
 	idParam := c.Params("id")
 	taskId, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -106,7 +108,7 @@ func (t *TaskController) GetTaskByID(c fiber.Ctx) error {
 		})
 	}
 
-	task, err := t.taskService.GetTaskByID(uint(taskId))
+	task, err := t.taskService.GetTaskByID(uint(taskId), userClaims.ID)
 	if err != nil {
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(&dto.ResponseGeneric[any]{
@@ -121,6 +123,8 @@ func (t *TaskController) GetTaskByID(c fiber.Ctx) error {
 }
 
 func (t *TaskController) UpdateTask(c fiber.Ctx) error {
+	userClaims := c.Locals("user").(*helpers.AuthTokenClaims)
+
 	idParam := c.Params("id")
 	taskId, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -154,11 +158,11 @@ func (t *TaskController) UpdateTask(c fiber.Ctx) error {
 		DueDate:     body.GetDueDate(),
 	}
 
-	updatedTask, err := t.taskService.UpdateTask(uint(taskId), taskUpdate)
+	updatedTask, err := t.taskService.UpdateTask(uint(taskId), userClaims.ID, taskUpdate)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(&dto.ResponseGeneric[any]{
-			Message: "Failed to update task",
+			Message: err.Error(),
 		})
 	}
 
@@ -169,6 +173,8 @@ func (t *TaskController) UpdateTask(c fiber.Ctx) error {
 }
 
 func (t *TaskController) DeleteTask(c fiber.Ctx) error {
+	userClaims := c.Locals("user").(*helpers.AuthTokenClaims)
+
 	idParam := c.Params("id")
 	taskId, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -178,11 +184,11 @@ func (t *TaskController) DeleteTask(c fiber.Ctx) error {
 		})
 	}
 
-	err = t.taskService.DeleteTask(uint(taskId))
+	err = t.taskService.DeleteTask(uint(taskId), userClaims.ID)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(&dto.ResponseGeneric[any]{
-			Message: "Failed to delete task",
+			Message: err.Error(),
 		})
 	}
 
