@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"os"
 
@@ -29,9 +30,10 @@ func InitRedisConnection() {
 	addr := fmt.Sprintf("%s:%s", redisHost, redisPort)
 
 	RedisClient = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: redisPassword,
-		DB:       0,
+		Addr:      addr,
+		Password:  redisPassword,
+		DB:        0,
+		TLSConfig: &tls.Config{},
 	})
 
 	_, err := RedisClient.Ping(Ctx).Result()
