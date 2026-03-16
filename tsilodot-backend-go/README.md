@@ -134,3 +134,183 @@ The OpenAPI specification is located at `docs/openapi.yaml`.
 - **Concurrency:** Uses `sync.WaitGroup` for parallel database operations where appropriate.
 - **Cache-Aside Pattern:** Redis is used to cache task lookups, with invalidation on updates/deletes.
 - **Clean Responses:** Standardized error and success responses via DTOs and helper functions.
+
+## 📡 API Endpoints
+
+All API endpoints are prefixed with `/api`. Authentication is handled via a Bearer Token in the `Authorization` header for protected routes.
+
+### 🔐 Authentication
+
+#### `POST /auth/register`
+- **Description**: Register a new user.
+- **Auth Required**: No
+- **Request Body**:
+  ```json
+  {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "securepassword",
+    "confirm_password": "securepassword"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Registration successful",
+    "data": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "balance": 0,
+      "created_at": "2024-03-20T10:00:00Z",
+      "updated_at": "2024-03-20T10:00:00Z",
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+  }
+  ```
+
+#### `POST /auth/login`
+- **Description**: Login user and get JWT token.
+- **Auth Required**: No
+- **Request Body**:
+  ```json
+  {
+    "email": "john@example.com",
+    "password": "securepassword"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Login successful",
+    "data": {
+      "id": 1,
+      "name": "John Doe",
+      "email": "john@example.com",
+      "balance": 0,
+      "created_at": "2024-03-20T10:00:00Z",
+      "updated_at": "2024-03-20T10:00:00Z",
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+  }
+  ```
+
+### 📋 Task Management
+
+#### `GET /tasks`
+- **Description**: List all tasks for the authenticated user with pagination.
+- **Auth Required**: Yes
+- **Query Parameters**:
+  - `page` (integer, default: `1`)
+  - `limit` (integer, default: `5`)
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Tasks fetched successfully",
+    "pagination": {
+      "current_page": 1,
+      "total_pages": 1,
+      "total_items": 1
+    },
+    "data": [
+      {
+        "id": 1,
+        "user_id": 1,
+        "title": "Complete project documentation",
+        "description": "Finish the README file for the backend API",
+        "status": "pending",
+        "due_date": "2024-03-25T00:00:00Z",
+        "created_at": "2024-03-20T10:00:00Z",
+        "updated_at": "2024-03-20T10:00:00Z"
+      }
+    ]
+  }
+  ```
+
+#### `POST /tasks`
+- **Description**: Create a new task.
+- **Auth Required**: Yes
+- **Request Body**:
+  ```json
+  {
+    "title": "Complete project documentation",
+    "description": "Finish the README file for the backend API",
+    "status": "pending",
+    "due_date": "2024-03-25"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Task created successfully",
+    "data": {
+      "id": 1,
+      "user_id": 1,
+      "title": "Complete project documentation",
+      "description": "Finish the README file for the backend API",
+      "status": "pending",
+      "due_date": "2024-03-25T00:00:00Z",
+      "created_at": "2024-03-20T10:00:00Z",
+      "updated_at": "2024-03-20T10:00:00Z"
+    }
+  }
+  ```
+
+#### `GET /tasks/:id`
+- **Description**: Get details of a specific task.
+- **Auth Required**: Yes
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Task fetched successfully",
+    "data": {
+      "id": 1,
+      "user_id": 1,
+      "title": "Complete project documentation",
+      "description": "Finish the README file for the backend API",
+      "status": "pending",
+      "due_date": "2024-03-25T00:00:00Z",
+      "created_at": "2024-03-20T10:00:00Z",
+      "updated_at": "2024-03-20T10:00:00Z"
+    }
+  }
+  ```
+
+#### `PUT /tasks/:id`
+- **Description**: Update an existing task.
+- **Auth Required**: Yes
+- **Request Body**:
+  ```json
+  {
+    "title": "Complete project documentation",
+    "description": "Finish the README and add examples",
+    "status": "completed",
+    "due_date": "2024-03-25"
+  }
+  ```
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Task updated successfully",
+    "data": {
+      "id": 1,
+      "user_id": 1,
+      "title": "Complete project documentation",
+      "description": "Finish the README and add examples",
+      "status": "completed",
+      "due_date": "2024-03-25T00:00:00Z",
+      "created_at": "2024-03-20T10:00:00Z",
+      "updated_at": "2024-03-20T10:15:00Z"
+    }
+  }
+  ```
+
+#### `DELETE /tasks/:id`
+- **Description**: Delete a task.
+- **Auth Required**: Yes
+- **Response (200 OK)**:
+  ```json
+  {
+    "message": "Task deleted successfully"
+  }
+  ```
