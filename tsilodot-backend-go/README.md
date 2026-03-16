@@ -2,6 +2,9 @@
 
 A high-performance task management (todo list) backend API built with Go, featuring Redis caching, JWT authentication, and comprehensive API documentation.
 
+![Scalar Preview](image.png)
+![Swagger Preview](image-1.png)
+
 ## 🚀 Features
 
 - **RESTful API:** Clean and predictable API for task management.
