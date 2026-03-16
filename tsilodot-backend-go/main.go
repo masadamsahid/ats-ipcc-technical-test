@@ -53,6 +53,9 @@ func main() {
 	defer db.StopDBConnection()
 	db.InitDBConnection()
 
+	db.InitRedisConnection()
+	defer db.StopRedisConnection()
+
 	app.Get("/", func(c fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
@@ -103,7 +106,7 @@ func main() {
 
 	// /api/tasks
 	taskRepo := repository.NewTaskRepository(db.DB)
-	taskService := service.NewTaskService(taskRepo)
+	taskService := service.NewTaskService(taskRepo, db.RedisClient)
 	taskController := controller.NewTaskController(taskService)
 	routes.SetupTaskRoutes(api, taskController)
 
