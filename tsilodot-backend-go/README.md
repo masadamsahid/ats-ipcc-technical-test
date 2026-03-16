@@ -98,6 +98,16 @@ migrate -path="./db/migrations" -database="postgres://user:pass@localhost:5432/d
 migrate -path="./db/migrations" -database="postgres://user:pass@localhost:5432/dbname?sslmode=disable" down
 ```
 
+### 🌱 Database Seeder
+
+To populate the database with initial test data (5 users, each with 4-15 tasks):
+
+```bash
+go run db/seeds/seeder.go
+```
+
+**Note:** This command will **truncate** the `tasks` and `users` tables before seeding. All existing user and task data will be lost.
+
 ### 🧪 Running Tests
 
 ```bash
