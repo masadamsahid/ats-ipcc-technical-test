@@ -5,6 +5,8 @@ import (
 	"tsilodot/helpers"
 	"tsilodot/model"
 	"tsilodot/repository"
+
+	"github.com/rs/zerolog/log"
 )
 
 type AuthService struct {
@@ -22,6 +24,10 @@ func NewAuthService(userRepository repository.IUserRepository) IAuthService {
 
 func (a AuthService) Register(newUser *model.User) (*dto.RegisterResponseData, error) {
 	hashPwd, err := helpers.HashPassword(newUser.Password)
+	if err != nil {
+		log.Error().Err(err).Str("email", newUser.Email).Msg("Error hashing password during registration")
+		return nil, err
+	}
 	newUser.Password = hashPwd
 
 	user, err := a.userRepository.CreateUser(nil, newUser)
@@ -52,11 +58,13 @@ func (a AuthService) Register(newUser *model.User) (*dto.RegisterResponseData, e
 func (a *AuthService) Login(params *dto.LoginRequest) (*dto.LoginResponseData, error) {
 	user, err := a.userRepository.FindUserByEmail(nil, params.Email)
 	if err != nil {
+		log.Warn().Err(err).Str("email", params.Email).Msg("Login failed: user not found")
 		return nil, err
 	}
 
 	err = helpers.CompareHashPassword(user.Password, params.Password)
 	if err != nil {
+		log.Warn().Str("email", params.Email).Msg("Login failed: invalid password")
 		return nil, err
 	}
 

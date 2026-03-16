@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"log"
 	"regexp"
 	"strings"
 
@@ -21,7 +20,6 @@ func toSnakeCase(str string) string {
 
 func HandleValidationErrors(validationErrors validator.ValidationErrors) map[string]string {
 	errs := make(map[string]string)
-	log.Println(errs)
 	for _, fieldErr := range validationErrors {
 		jsonKey := toSnakeCase(fieldErr.Field())
 

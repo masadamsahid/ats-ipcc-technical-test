@@ -3,6 +3,7 @@ package repository
 import (
 	"tsilodot/model"
 
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
@@ -32,6 +33,7 @@ func (u *UserRepository) CreateUser(db *gorm.DB, param *model.User) (*model.User
 
 	err := db.Create(&user).Error
 	if err != nil {
+		log.Error().Err(err).Str("email", param.Email).Msg("Error creating user")
 		return nil, err
 	}
 
@@ -46,6 +48,7 @@ func (u *UserRepository) FindUserByID(db *gorm.DB, userId uint) (*model.User, er
 	var user model.User
 	err := db.First(&user, userId).Error
 	if err != nil {
+		log.Error().Err(err).Uint("user_id", userId).Msg("Error finding user by ID")
 		return nil, err
 	}
 
@@ -60,6 +63,7 @@ func (u *UserRepository) FindUserByEmail(db *gorm.DB, email string) (*model.User
 	var user model.User
 	err := db.Where("email = ?", email).First(&user).Error
 	if err != nil {
+		log.Error().Err(err).Str("email", email).Msg("Error finding user by email")
 		return nil, err
 	}
 

@@ -1,11 +1,11 @@
 package middlewares
 
 import (
-	"log"
 	"strings"
 	"tsilodot/helpers"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/rs/zerolog/log"
 )
 
 func IsAuthenticated(c fiber.Ctx) error {
@@ -35,18 +35,14 @@ func IsAuthenticated(c fiber.Ctx) error {
 		})
 	}
 
-	// log.Printf("%v", token.Claims)
-
 	claims, ok := token.Claims.(*helpers.AuthTokenClaims)
 	if !ok {
-		log.Println("Error claim:", claims)
+		log.Error().Msg("Invalid token claims structure")
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(&fiber.Map{
 			"message": "invalid token claims",
 		})
 	}
-
-	// log.Println("Claims", claims)
 
 	c.Locals("user", claims)
 

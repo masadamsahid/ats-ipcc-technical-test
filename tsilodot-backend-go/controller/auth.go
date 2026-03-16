@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
+	"github.com/rs/zerolog/log"
 )
 
 type AuthController struct {
@@ -22,6 +23,7 @@ func (a *AuthController) Register(c fiber.Ctx) error {
 	body := new(dto.RegisterRequest)
 
 	if err := c.Bind().Body(body); err != nil {
+		log.Warn().Err(err).Msg("Registration failed: invalid request body")
 
 		validationErrors, ok := err.(validator.ValidationErrors)
 		if !ok {
@@ -45,6 +47,7 @@ func (a *AuthController) Register(c fiber.Ctx) error {
 		Password: body.Password,
 	})
 	if err != nil {
+		log.Error().Err(err).Str("email", body.Email).Msg("Registration failed in service")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Failed registering user",
@@ -62,6 +65,7 @@ func (a *AuthController) Login(c fiber.Ctx) error {
 	body := new(dto.LoginRequest)
 
 	if err := c.Bind().Body(body); err != nil {
+		log.Warn().Err(err).Msg("Login failed: invalid request body")
 		validationErrors, ok := err.(validator.ValidationErrors)
 		if !ok {
 			c.Status(fiber.StatusBadRequest)
@@ -80,6 +84,7 @@ func (a *AuthController) Login(c fiber.Ctx) error {
 
 	loginData, err := a.authService.Login(body)
 	if err != nil {
+		log.Warn().Err(err).Str("email", body.Email).Msg("Login failed in service")
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Invalid email or password",

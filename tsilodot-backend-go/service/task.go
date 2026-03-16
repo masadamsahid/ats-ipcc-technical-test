@@ -10,6 +10,7 @@ import (
 	"tsilodot/repository"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog/log"
 )
 
 type TaskService struct {
@@ -48,13 +49,18 @@ func (s *TaskService) GetTaskByID(taskId uint, userId uint) (*model.Task, error)
 	val, err := s.redisClient.Get(context.Background(), cacheKey).Result()
 	if err == nil {
 		var task model.Task
-		if json.Unmarshal([]byte(val), &task) == nil {
+		if errUnmarshal := json.Unmarshal([]byte(val), &task); errUnmarshal == nil {
 
 			if task.UserID != userId {
+				log.Warn().Uint("task_id", taskId).Uint("user_id", userId).Msg("Unauthorized cache access attempt")
 				return nil, errors.New("unauthorized: task does not belong to user")
 			}
 			return &task, nil
+		} else {
+			log.Error().Err(errUnmarshal).Str("cache_key", cacheKey).Msg("Error unmarshaling cached task")
 		}
+	} else if err != redis.Nil {
+		log.Error().Err(err).Str("cache_key", cacheKey).Msg("Error getting task from Redis")
 	}
 
 	task, err := s.taskRepository.FindTaskByID(nil, taskId)
@@ -63,12 +69,20 @@ func (s *TaskService) GetTaskByID(taskId uint, userId uint) (*model.Task, error)
 	}
 
 	if task.UserID != userId {
+		log.Warn().Uint("task_id", taskId).Uint("user_id", userId).Msg("Unauthorized task access attempt")
 		return nil, errors.New("unauthorized: task does not belong to user")
 	}
 
 	// Cache to redis with 10 mins
-	taskData, _ := json.Marshal(task)
-	s.redisClient.Set(context.Background(), cacheKey, taskData, 10*time.Minute)
+	taskData, errMarshal := json.Marshal(task)
+	if errMarshal != nil {
+		log.Error().Err(errMarshal).Uint("task_id", taskId).Msg("Error marshaling task for cache")
+	} else {
+		errSet := s.redisClient.Set(context.Background(), cacheKey, taskData, 10*time.Minute).Err()
+		if errSet != nil {
+			log.Error().Err(errSet).Str("cache_key", cacheKey).Msg("Error setting task in Redis")
+		}
+	}
 
 	return task, nil
 }
@@ -80,6 +94,7 @@ func (s *TaskService) UpdateTask(taskId uint, userId uint, taskUpdate *model.Tas
 	}
 
 	if task.UserID != userId {
+		log.Warn().Uint("task_id", taskId).Uint("user_id", userId).Msg("Unauthorized task update attempt")
 		return nil, errors.New("unauthorized: cannot update task belonging to another user")
 	}
 
@@ -91,7 +106,10 @@ func (s *TaskService) UpdateTask(taskId uint, userId uint, taskUpdate *model.Tas
 	updatedTask, err := s.taskRepository.UpdateTask(nil, task)
 	if err == nil { // Invalidate cache
 		cacheKey := fmt.Sprintf("task:%d", taskId)
-		s.redisClient.Del(context.Background(), cacheKey)
+		errDel := s.redisClient.Del(context.Background(), cacheKey).Err()
+		if errDel != nil {
+			log.Error().Err(errDel).Str("cache_key", cacheKey).Msg("Error deleting task from Redis")
+		}
 	}
 
 	return updatedTask, err
@@ -104,13 +122,17 @@ func (s *TaskService) DeleteTask(taskId uint, userId uint) error {
 	}
 
 	if task.UserID != userId {
+		log.Warn().Uint("task_id", taskId).Uint("user_id", userId).Msg("Unauthorized task deletion attempt")
 		return errors.New("unauthorized: cannot delete task belonging to another user")
 	}
 
 	err = s.taskRepository.DeleteTask(nil, taskId)
 	if err == nil { // Invalidate cache
 		cacheKey := fmt.Sprintf("task:%d", taskId)
-		s.redisClient.Del(context.Background(), cacheKey)
+		errDel := s.redisClient.Del(context.Background(), cacheKey).Err()
+		if errDel != nil {
+			log.Error().Err(errDel).Str("cache_key", cacheKey).Msg("Error deleting task from Redis after deletion")
+		}
 	}
 
 	return err

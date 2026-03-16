@@ -2,11 +2,11 @@ package helpers
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/rs/zerolog/log"
 )
 
 var jwtSecret string
@@ -15,8 +15,6 @@ var jwtSecretArrOfByte []byte
 func InitJWT() {
 	jwtSecret = os.Getenv("JWT_SECRET_KEY")
 	jwtSecretArrOfByte = []byte(jwtSecret)
-
-	// log.Println("JWT secret:", jwtSecret)
 }
 
 type AuthPayload struct {
@@ -35,16 +33,15 @@ type AuthTokenClaims struct {
 
 func CreateAuthToken(claims AuthTokenClaims) (string, error) {
 	issuedAt := time.Now()
-	claims.Issuer = "mampuio-wallet-app"
+	claims.Issuer = "tsilodot"
 	claims.IssuedAt = jwt.NewNumericDate(issuedAt)
 	claims.ExpiresAt = jwt.NewNumericDate(issuedAt.Add(time.Hour * 24))
-	// log.Println(jwtSecret)
+
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// log.Println("Token claim", tokenClaims)
 
 	authToken, err := tokenClaims.SignedString(jwtSecretArrOfByte)
 	if err != nil {
-		log.Println("Error creating auth token:", err)
+		log.Error().Err(err).Msg("Error creating auth token")
 		return "", err
 	}
 
@@ -59,8 +56,6 @@ func VerifyAuthToken(strAuthToken string) (*jwt.Token, error) {
 
 		return jwtSecretArrOfByte, nil
 	})
-
-	// log.Println(err)
 
 	return authToken, err
 }

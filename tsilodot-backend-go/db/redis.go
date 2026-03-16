@@ -3,10 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -36,9 +36,9 @@ func InitRedisConnection() {
 
 	_, err := RedisClient.Ping(Ctx).Result()
 	if err != nil {
-		log.Printf("❌ Failed to connect to Redis at %s: %v", addr, err)
+		log.Error().Err(err).Str("addr", addr).Msg("Failed to connect to Redis")
 	} else {
-		fmt.Printf("✅ Successfully connected to Redis at %s\n", addr)
+		log.Info().Str("addr", addr).Msg("Successfully connected to Redis")
 	}
 }
 
@@ -46,9 +46,9 @@ func StopRedisConnection() {
 	if RedisClient != nil {
 		err := RedisClient.Close()
 		if err != nil {
-			log.Printf("Error closing Redis connection: %v", err)
+			log.Error().Err(err).Msg("Error closing Redis connection")
 		} else {
-			log.Println("Success closing connection to Redis")
+			log.Info().Msg("Success closing connection to Redis")
 		}
 	}
 }

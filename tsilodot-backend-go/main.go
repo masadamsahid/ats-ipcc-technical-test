@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"tsilodot/controller"
@@ -15,16 +14,18 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
 	"github.com/joho/godotenv"
+	"github.com/rs/zerolog/log"
 
 	scalargo "github.com/bdpiprava/scalar-go"
 	swagger "github.com/gofiber/contrib/v3/swaggerui"
 )
 
 func init() {
+	helpers.InitLogger()
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using environment variables from OS")
+		log.Info().Msg("No .env file found, using environment variables from OS")
 	} else {
-		log.Println("Loading .env success")
+		log.Info().Msg("Loading .env success")
 	}
 }
 
@@ -63,7 +64,7 @@ func main() {
 	// Raw OpenAPI YAML file
 	openapiYAMLDocs, err := os.ReadFile("./docs/openapi.yaml")
 	if err != nil {
-		log.Println("Error loading OpenAPI .yaml file:", err)
+		log.Error().Err(err).Msg("Error loading OpenAPI .yaml file")
 	}
 	openapiStr := string(openapiYAMLDocs)
 	app.Get("/openapi", func(c fiber.Ctx) error {
@@ -86,9 +87,9 @@ func main() {
 		scalargo.WithTheme(scalargo.ThemeBluePlanet),
 	)
 	if err != nil {
-		log.Println("Error Scalar-Go:", err)
+		log.Error().Err(err).Msg("Error Scalar-Go")
 	}
-	// log.Println("HTML", html)
+	// log.Debug().Str("html", html).Msg("Scalar HTML generated")
 	app.Get("/scalar", func(c fiber.Ctx) error {
 
 		c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
@@ -110,11 +111,11 @@ func main() {
 	taskController := controller.NewTaskController(taskService)
 	routes.SetupTaskRoutes(api, taskController)
 
-	fmt.Println("Available Routes:")
+	log.Info().Msg("Starting server...")
 	for _, route := range app.GetRoutes() {
-		fmt.Printf("%s\t%s\n", route.Method, route.Path)
+		log.Debug().Str("method", route.Method).Str("path", route.Path).Msg("Available Route")
 	}
 
-	log.Fatal(app.Listen(fmt.Sprintf(":%d", APP_PORT)))
+	log.Fatal().Err(app.Listen(fmt.Sprintf(":%d", APP_PORT))).Msg("Server failed to listen")
 
 }

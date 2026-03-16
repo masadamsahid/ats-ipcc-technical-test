@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v3"
+	"github.com/rs/zerolog/log"
 )
 
 type TaskController struct {
@@ -24,6 +25,7 @@ func (t *TaskController) CreateTask(c fiber.Ctx) error {
 	body := new(dto.TaskRequest)
 
 	if err := c.Bind().Body(body); err != nil {
+		log.Warn().Err(err).Uint("user_id", userClaims.ID).Msg("CreateTask failed: invalid request body")
 		validationErrors, ok := err.(validator.ValidationErrors)
 		if !ok {
 			c.Status(fiber.StatusBadRequest)
@@ -49,6 +51,7 @@ func (t *TaskController) CreateTask(c fiber.Ctx) error {
 
 	newTask, err := t.taskService.CreateTask(userClaims.ID, task)
 	if err != nil {
+		log.Error().Err(err).Uint("user_id", userClaims.ID).Msg("CreateTask failed in service")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Failed to create task",
@@ -78,6 +81,7 @@ func (t *TaskController) GetTasks(c fiber.Ctx) error {
 
 	tasks, total, err := t.taskService.GetTasksByUserID(userClaims.ID, limit, offset)
 	if err != nil {
+		log.Error().Err(err).Uint("user_id", userClaims.ID).Msg("GetTasks failed in service")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Failed to fetch tasks",
@@ -103,6 +107,7 @@ func (t *TaskController) GetTaskByID(c fiber.Ctx) error {
 	idParam := c.Params("id")
 	taskId, err := strconv.Atoi(idParam)
 	if err != nil {
+		log.Warn().Err(err).Uint("user_id", userClaims.ID).Str("task_id_param", idParam).Msg("GetTaskByID failed: invalid task ID")
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Invalid task ID",
@@ -111,6 +116,7 @@ func (t *TaskController) GetTaskByID(c fiber.Ctx) error {
 
 	task, err := t.taskService.GetTaskByID(uint(taskId), userClaims.ID)
 	if err != nil {
+		log.Warn().Err(err).Uint("user_id", userClaims.ID).Int("task_id", taskId).Msg("GetTaskByID failed in service")
 		c.Status(fiber.StatusNotFound)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Task not found",
@@ -129,6 +135,7 @@ func (t *TaskController) UpdateTask(c fiber.Ctx) error {
 	idParam := c.Params("id")
 	taskId, err := strconv.Atoi(idParam)
 	if err != nil {
+		log.Warn().Err(err).Uint("user_id", userClaims.ID).Str("task_id_param", idParam).Msg("UpdateTask failed: invalid task ID")
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Invalid task ID",
@@ -137,6 +144,7 @@ func (t *TaskController) UpdateTask(c fiber.Ctx) error {
 
 	body := new(dto.TaskRequest)
 	if err := c.Bind().Body(body); err != nil {
+		log.Warn().Err(err).Uint("user_id", userClaims.ID).Int("task_id", taskId).Msg("UpdateTask failed: invalid request body")
 		validationErrors, ok := err.(validator.ValidationErrors)
 		if !ok {
 			c.Status(fiber.StatusBadRequest)
@@ -162,6 +170,7 @@ func (t *TaskController) UpdateTask(c fiber.Ctx) error {
 
 	updatedTask, err := t.taskService.UpdateTask(uint(taskId), userClaims.ID, taskUpdate)
 	if err != nil {
+		log.Error().Err(err).Uint("user_id", userClaims.ID).Int("task_id", taskId).Msg("UpdateTask failed in service")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: err.Error(),
@@ -180,6 +189,7 @@ func (t *TaskController) DeleteTask(c fiber.Ctx) error {
 	idParam := c.Params("id")
 	taskId, err := strconv.Atoi(idParam)
 	if err != nil {
+		log.Warn().Err(err).Uint("user_id", userClaims.ID).Str("task_id_param", idParam).Msg("DeleteTask failed: invalid task ID")
 		c.Status(fiber.StatusBadRequest)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: "Invalid task ID",
@@ -188,6 +198,7 @@ func (t *TaskController) DeleteTask(c fiber.Ctx) error {
 
 	err = t.taskService.DeleteTask(uint(taskId), userClaims.ID)
 	if err != nil {
+		log.Error().Err(err).Uint("user_id", userClaims.ID).Int("task_id", taskId).Msg("DeleteTask failed in service")
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(&dto.ResponseGeneric[any]{
 			Message: err.Error(),

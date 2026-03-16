@@ -2,9 +2,9 @@ package db
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/rs/zerolog/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -27,18 +27,24 @@ func InitDBConnection() {
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal("❌ Failed to establish db connection: ", err)
+		log.Fatal().Err(err).Msg("Failed to establish db connection")
 	}
-	fmt.Println("✅ Successfully connected to database ")
+	log.Info().Msg("Successfully connected to database")
 }
 
 func StopDBConnection() {
+	if DB == nil {
+		return
+	}
 	sqlDB, err := DB.DB()
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Err(err).Msg("Failed to get SQL DB from GORM")
+		return
 	}
 
-	sqlDB.Close()
-
-	log.Println("Success closing connection to DB")
+	if err := sqlDB.Close(); err != nil {
+		log.Error().Err(err).Msg("Error closing DB connection")
+	} else {
+		log.Info().Msg("Success closing connection to DB")
+	}
 }
